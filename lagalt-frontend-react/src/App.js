@@ -3,10 +3,17 @@ import { ReactKeycloakProvider, useKeycloak } from '@react-keycloak/web';
 import keycloak from './keycloakConfig';
 import { Provider } from "react-redux";
 import store from "./store";
-import Cart from './components/Cart';
+import { BrowserRouter,Route, Routes  } from 'react-router-dom';
+import Navbar from './components/Navbar';
+
+import LandingPage from "./pages/LandingPage"
+import ProfilePage from "./pages/ProfilePage"
+import ErrorPage from './pages/ErrorPage';
+
 
 
 const MainContent = () => {
+
   const { keycloak, initialized } = useKeycloak();
 
   if (!initialized || !keycloak.authenticated) {
@@ -15,13 +22,20 @@ const MainContent = () => {
   }
 
   return (
-    <div>
-      <h1>Mitt App Namn</h1>
-      <Cart></Cart>
+    <BrowserRouter>
+      <h1>Welcome Boiiii</h1>
+      <Navbar />
+      <Routes>
+          <Route path='/' element={<LandingPage />} />
+          <Route path='/profile' element={<ProfilePage />} />
+          <Route path='/*' element={<ErrorPage />} />
+      </Routes>
       <button onClick={() => keycloak.logout()}>Logout</button>
-    </div>
+    </BrowserRouter>
   );
 };
+
+
 
 const App = () => (
   <Provider store={store}> 
