@@ -11,7 +11,7 @@ const MainContent = () => {
   }
 
   if (!keycloak.authenticated) {
-    window.location.href = keycloak.createLoginUrl();
+    keycloak.login();
     return null;
   }
 
