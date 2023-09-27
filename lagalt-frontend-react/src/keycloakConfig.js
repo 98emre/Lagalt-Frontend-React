@@ -1,7 +1,5 @@
 // keycloak.js
 
-// keycloak.js
-
 import Keycloak from 'keycloak-js';
 
 const keycloakConfig = {
