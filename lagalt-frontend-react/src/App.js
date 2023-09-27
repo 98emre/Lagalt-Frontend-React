@@ -2,17 +2,12 @@ import React from 'react';
 import { ReactKeycloakProvider, useKeycloak } from '@react-keycloak/web';
 import keycloak from './keycloakConfig';
 
-
 const MainContent = () => {
   const { keycloak, initialized } = useKeycloak();
 
-  if (!initialized) {
+  if (!initialized || !keycloak.authenticated) {
+    if (initialized) keycloak.login();
     return <div>Loading...</div>;
-  }
-
-  if (!keycloak.authenticated) {
-    keycloak.login();
-    return null;
   }
 
   return (
@@ -23,12 +18,10 @@ const MainContent = () => {
   );
 };
 
-const App = () => {
-  return (
-    <ReactKeycloakProvider authClient={keycloak}>
-      <MainContent />
-    </ReactKeycloakProvider>
-  );
-};
+const App = () => (
+  <ReactKeycloakProvider authClient={keycloak}>
+    <MainContent />
+  </ReactKeycloakProvider>
+);
 
 export default App;
