@@ -1,5 +1,7 @@
 // keycloak.js
 
+// keycloak.js
+
 import Keycloak from 'keycloak-js';
 
 const keycloakConfig = {
@@ -7,7 +9,7 @@ const keycloakConfig = {
   realm: 'lagalt',
   clientId: 'lagalt-id',
   onLoad: 'login-required',
-  enableDebug: true 
+  enableDebug: true
 };
 
 const keycloak = new Keycloak(keycloakConfig);

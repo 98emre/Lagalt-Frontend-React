@@ -1,28 +1,32 @@
-import React, { useEffect } from 'react';
-import { ReactKeycloakProvider } from '@react-keycloak/web';
-import keycloak from './keycloak';
-import LoginButton from './LoginButton';
-import RegisterButton from './RegisterButton';
-import UserAuth from './UserAuth';
+import React from 'react';
+import { ReactKeycloakProvider, useKeycloak } from '@react-keycloak/web';
+import keycloak from './keycloakConfig';
 
-const App = () => {
 
-  useEffect(() => {
-    if (keycloak.authenticated) {
-      keycloak.logout();
-    }
-  }, [keycloak.authenticated]);
+const MainContent = () => {
+  const { keycloak, initialized } = useKeycloak();
+
+  if (!initialized) {
+    return <div>Loading...</div>;
+  }
+
+  if (!keycloak.authenticated) {
+    window.location.href = keycloak.createLoginUrl();
+    return null;
+  }
 
   return (
-    <ReactKeycloakProvider authClient={keycloak}>
-      <div>
-        <h1>Mitt App Namn</h1>
-        
-        <LoginButton />
+    <div>
+      <h1>Mitt App Namn</h1>
+      <button onClick={() => keycloak.logout()}>Logout</button>
+    </div>
+  );
+};
 
-        <RegisterButton />
-        <UserAuth></UserAuth>
-      </div>
+const App = () => {
+  return (
+    <ReactKeycloakProvider authClient={keycloak}>
+      <MainContent />
     </ReactKeycloakProvider>
   );
 };
