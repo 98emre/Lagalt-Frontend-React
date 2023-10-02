@@ -2,7 +2,6 @@ import {configureStore} from "@reduxjs/toolkit"
 import rootReducer from './rootReducer';
 
 const loggerMiddleware = storeAPI => next => action => {
-    console.log('dispatching', action);
     return next(action);
 }
 

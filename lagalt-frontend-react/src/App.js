@@ -9,6 +9,7 @@ import Navbar from './components/Navbar';
 import LandingPage from "./pages/LandingPage"
 import ProfilePage from "./pages/ProfilePage"
 import ErrorPage from './pages/ErrorPage';
+import UserDataFetcher from './components/UserDataFetcher';
 
 
 
@@ -23,6 +24,7 @@ const MainContent = () => {
 
   return (
     <BrowserRouter>
+      <UserDataFetcher />
       <h1>Welcome Boiiii</h1>
       <Navbar />
       <Routes>

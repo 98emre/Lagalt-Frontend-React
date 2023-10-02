@@ -1,8 +1,10 @@
 import { combineReducers } from '@reduxjs/toolkit';
-import counterReducer from './slices/counterSlice';
+import projectReducer from './slices/projectSlice';
+import userReducer from './slices/userSlice';
 
 const rootReducer = combineReducers({
-    counter: counterReducer
+    project: projectReducer,
+    user: userReducer
 });
 
 export default rootReducer;

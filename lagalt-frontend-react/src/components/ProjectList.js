@@ -1,29 +1,23 @@
 import React, { useState, useEffect } from "react";
-import { getAllProjects } from "../api/projectAPI";
+import { useSelector, useDispatch } from "react-redux";
+
+import { fetchProjects} from "../api/projectAPI";
 
 const ProjectList = () => {
-  const [projects, setProjects] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const dispatch = useDispatch();
+
+  const projects = useSelector((state) => state.project.projectsList);
+  const loading = useSelector((state) => state.project.loading);
+  const error = useSelector((state) => state.project.error);
 
   useEffect(() => {
-    async function fetchData() {
-      try {
-        const response = await getAllProjects();
-        setProjects(response.data);
-        setLoading(false);
-      } catch (error) {
-        console.log("Error fetch projects " + error);
-        setError("There was an error fetching the projects.");
-        setLoading(false);
-      }
-    }
-    fetchData();
-  }, []);
+        dispatch(fetchProjects())
+
+  },[dispatch])
 
   const renderList = () => {
-    if (loading) {
-      return <p>Loading project..... </p>;
+    if (loading === 'loading') {
+      return <p>Loading projects...</p>;
     }
 
     if (error) {
@@ -31,7 +25,7 @@ const ProjectList = () => {
     }
 
     if (projects.length === 0) {
-      return <p>No Projects is available</p>;
+      return <p>No Projects available</p>;
     }
 
     return (
@@ -47,6 +41,7 @@ const ProjectList = () => {
       </ul>
     );
   };
+
 
   return (
     <div>
