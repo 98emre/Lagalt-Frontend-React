@@ -1,11 +1,12 @@
 import React from 'react'
 import Cart from "../components/Cart"
+import ProjectList from '../components/ProjectList'
 
 
 const  LandingPage = () => {
   return (
     <div>
-      <Cart />
+      <ProjectList />
     </div>
   )
 }
