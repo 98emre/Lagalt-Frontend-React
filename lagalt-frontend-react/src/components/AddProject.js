@@ -15,10 +15,7 @@ function AddProject() {
     const[descriptions, setDescriptions] = useState("");
     const[gitlink, setGitLink] = useState("");
     const[category, setCategory] = useState("");
-    const[status, setStatus] = useState("NOT_STARTED");
-
  
-
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -28,7 +25,7 @@ function AddProject() {
             descriptions,
             gitlink,
             category,
-            status,
+            status: "NOT_STARTED",
             user
         }
         console.log('Suss ', newProject);
