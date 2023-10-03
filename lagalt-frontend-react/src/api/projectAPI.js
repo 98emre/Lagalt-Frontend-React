@@ -11,3 +11,29 @@ export const fetchProjects = createAsyncThunk('project/fetchProjects', async () 
         throw error.response ? error.response.data : { message: "An unknown error occurred" };
     }
 });
+
+
+export const addProject = createAsyncThunk("project/addProjects", async({project, token}) => {
+
+    if (!token) {
+        throw { message: "Token is not available" };
+    }
+
+    try {
+        const response = await axios.post(BASE_URL, project, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+        });
+
+
+        return response.data;
+
+    } catch (error) {
+        throw error.response ? error.response.data: {message: "An error occurred while posting project"}
+    }
+
+
+
+})

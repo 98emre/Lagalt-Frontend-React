@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { fetchProjects } from '../api/projectAPI'; 
+import { fetchProjects, addProject } from '../api/projectAPI'; 
 
 const initialState = {
     projectsList: [],
@@ -12,7 +12,7 @@ const initialState = {
         gitlink: '',
         category: null,
         status: null,
-        user: null,
+        user: {},
         comments: [],
         collaborators: []
     }
@@ -69,7 +69,24 @@ const projectSlice = createSlice({
             .addCase(fetchProjects.rejected, (state, action) => {
                 state.loading = 'error';
                 state.error = action.error.message;
-            });
+            })
+            .addCase(addProject.pending, (state) => {
+                state.loading = 'loading';
+            })
+            .addCase(addProject.fulfilled, (state, action) => {
+                state.loading = 'loaded';
+                state.project = {
+                    ...action.payload,
+                    comments: action.payload.comments || [],
+                    collaborators: action.payload.comments || []
+                };
+            })
+            
+            .addCase(addProject.rejected, (state, action) => {
+                state.loading = 'error';
+                state.error = action.error.message;
+            });;
+
     }
 });
 

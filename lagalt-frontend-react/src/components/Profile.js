@@ -2,6 +2,7 @@ import React, {useState, useEffect, useRef} from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { updateUser } from "../api/userAPI";
 import { useKeycloak } from "@react-keycloak/web";
+import AddProject from "./AddProject";
 
 
 const SKILLS = ["JAVA", "JAVASCRIPT", "REACT", "ANGULAR", "C"];
@@ -16,7 +17,7 @@ const Profile = () => {
     const loading = useSelector((state) => state.user.loading);
     const error = useSelector((state) => state.user.error);
 
-    const { username, email, fullname, description, skills } = user;
+    const { username, email, fullname, description, skills, projects } = user;
 
 
     const[editDescription, setEditDescription] = useState(description)
@@ -67,6 +68,20 @@ const Profile = () => {
         return <div>Error : {error}</div>
     }
 
+    const handleProjects = () => {
+        if (!projects || projects.length === 0) {
+            return <p>No projects Added.</p>;
+        }
+
+        return (projects.map(project => (
+            <div key={project.id}>
+                    <div>
+                        {project.title}
+                    </div>
+            </div>
+        )));
+    }
+
 
     return (
         <div>
@@ -85,10 +100,13 @@ const Profile = () => {
                     </label>
                 </div>
             ))}
+            {handleProjects()}
 
             {!isEditing ? (<button onClick={() => setIsEditing(true)}>Edit</button>) :
                 (<button onClick={handleSave}>Save</button>)
             }
+
+            <AddProject/>
         
         </div>
     )
