@@ -76,7 +76,8 @@ const Profile = () => {
             <h4>Description: {description}</h4>
             {isEditing && <textarea value={editDescription} onChange={(e) => setEditDescription(e.target.value)} />}
 
-            {SKILLS.map(skill => (
+            <h4>Skills {skills.join(", ")}</h4>
+            {isEditing && SKILLS.map(skill => (
                 <div key={skill}>
                     <label>
                         <input type="checkbox" checked={selectedSkills.has(skill)} onChange={() => handleSkillChange(skill)} disabled={!isEditing}/>
