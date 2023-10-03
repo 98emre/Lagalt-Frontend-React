@@ -28,11 +28,34 @@ export const fetchUser = createAsyncThunk("user/fetchUser", async(token) => {
             return createUserResponse.data;
         }
         else {
-            console.error("Unexpected error:", error);  // Only log unexpected errors
+            console.error("Unexpected error:", error);
             throw error;
         }
     }
 });
+
+
+export const updateUser = createAsyncThunk("user/updateUser", async ({ id, userUpdateData, token }) => {
+    if (!token) {
+        throw { message: "Token is not available" };
+    }
+
+    try {
+        const response = await axios.patch(`${BASE_URL}/${id}/update`, userUpdateData, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        return response.data;
+    } 
+    
+    catch (error) {
+        console.error("Error updating user:", error.response || error.message);
+        throw error;
+    }
+})
 
 
 

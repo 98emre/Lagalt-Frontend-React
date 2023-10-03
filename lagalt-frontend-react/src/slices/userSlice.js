@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { fetchUser } from "../api/userAPI";
+import { fetchUser, updateUser } from "../api/userAPI";
 
 const initialState = {
     loading: 'idle',
@@ -77,6 +77,17 @@ const userSlice = createSlice({
                     state.user = action.payload;
                 })
                 .addCase(fetchUser.rejected, (state, action) => {
+                    state.loading = 'error';
+                    state.error = action.error.message;
+                })
+                .addCase(updateUser.pending, (state) => {
+                    state.loading = 'loading'
+                })
+                .addCase(updateUser.fulfilled, (state, action) => {
+                    state.loading = 'loaded';
+                    state.user = action.payload;
+                })
+                .addCase(updateUser.rejected, (state, action) => {
                     state.loading = 'error';
                     state.error = action.error.message;
                 })
