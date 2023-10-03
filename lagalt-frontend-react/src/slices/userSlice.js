@@ -12,11 +12,11 @@ const initialState = {
         fullname: '',
         skills: [],
         profileVisibility: '',
-        projects: [],
-        collaborators: [],
-        comments: [],
-        sentMessages: [],
-        receivedMessages: []
+        projectIds: [],
+        collaboratorIds: [],
+        commentIds: [],
+        sentMessageIds: [],
+        receivedMessageIds: []
     }
 };
 

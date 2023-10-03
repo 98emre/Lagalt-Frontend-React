@@ -85,6 +85,7 @@ const Profile = () => {
 
     return (
         <div>
+            {console.log("kkkk", user)}
             <h4>Username: {username}</h4>
             <h4>Email: {email}</h4>
             <h4>Fullname: {fullname}</h4>
