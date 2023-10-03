@@ -1,6 +1,7 @@
 
 
-import React, {useState} from 'react'
+import React from 'react'
+import { useForm } from "react-hook-form";
 import { addProject } from '../api/projectAPI'
 import { useDispatch, useSelector } from 'react-redux';
 import { useKeycloak } from '@react-keycloak/web';
@@ -11,75 +12,59 @@ function AddProject() {
     
     const {keycloak} = useKeycloak();
 
-    const[title, setTitle] = useState("");
-    const[descriptions, setDescriptions] = useState("");
-    const[gitlink, setGitLink] = useState("");
-    const[category, setCategory] = useState("");
  
+    const { register, handleSubmit, formState: { errors }, reset } = useForm();
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-
+    const onSubmit = (data) => {
         const newProject = {
-            title,
-            descriptions,
-            gitlink,
-            category,
+            ...data,
             status: "NOT_STARTED",
             user
         }
-        console.log('Suss ', newProject);
 
+        console.log('Submitted Data: ', newProject);
 
         dispatch(
             addProject({
                 project: newProject,
                 token: keycloak.token
             }));
-
-        setTitle("");
-        setDescriptions("");
-        setGitLink("");
-        setCategory("");
+        
+        reset();
     }
 
 
   return (
     <div>
             <h2>Add New Project</h2>
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit(onSubmit)}>
                 <div>
                     <label>Title:</label>
-                    <input
-                        type="text"
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                    />
+                    <input {...register("title", { required: "Title is required" })} />
+                    {errors.title && <p style={{color: 'red'}}>{errors.title.message}</p>}
                 </div>
                 
                 <div>
                     <label>Description:</label>
-                    <textarea
-                        value={descriptions}
-                        onChange={(e) => setDescriptions(e.target.value)}
-                    />
+                    <textarea{...register("descriptions", {required: "Descriptions is required", length: 10})}/>
+                     {errors.descriptions && <p style={{color: 'red'}}>{errors.descriptions.message}</p>}
                 </div>
 
                 <div>
                     <label>Git Link:</label>
-                    <input
-                        type="text"
-                        value={gitlink}
-                        onChange={(e) => setGitLink(e.target.value)}
-                    />
+                    <input {...register("gitlink", { required: "Gitlin is required", length: 10})} />
+                    {errors.gitlink && <p style={{color: 'red'}}>{errors.gitlink.message}</p>}
+                    
                 </div>
 
                 <div>
                     <label>Category:</label>
-                    <label><input type="radio" name="category" value="MUSIC" onChange={(e) => setCategory(e.target.value)} /> MUSIC</label>
-                    <label><input type="radio" name="category" value="FILM" onChange={(e) => setCategory(e.target.value)} /> FILM</label>
-                    <label><input type="radio" name="category" value="GAME" onChange={(e) => setCategory(e.target.value)} /> GAME</label>
-                    <label><input type="radio" name="category" value="WEB" onChange={(e) => setCategory(e.target.value)} /> WEB</label>
+                    <label><input type="radio" {...register("category", { required: "Category is required" })} value="MUSIC" /> MUSIC</label>
+                    <label><input type="radio" {...register("category")} value="FILM" /> FILM</label>
+                    <label><input type="radio" {...register("category")} value="GAME" /> GAME</label>
+                    <label><input type="radio" {...register("category")} value="WEB" /> WEB</label>
+                    {errors.category && <p style={{color: 'red'}}>{errors.category.message}</p>}
+
                 </div>
 
                 <button type="submit">Add Project</button>
