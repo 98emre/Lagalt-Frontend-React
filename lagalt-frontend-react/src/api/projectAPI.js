@@ -12,7 +12,6 @@ export const fetchProjects = createAsyncThunk('project/fetchProjects', async () 
     }
 });
 
-
 export const addProject = createAsyncThunk("project/addProjects", async({project, token}) => {
 
     if (!token) {
@@ -27,13 +26,20 @@ export const addProject = createAsyncThunk("project/addProjects", async({project
             },
         });
 
-
         return response.data;
 
     } catch (error) {
         throw error.response ? error.response.data: {message: "An error occurred while posting project"}
     }
+})
 
+export const getProjectById = createAsyncThunk("project/getProjectById", async({id})=> {
 
+    try {
+        const response = await axios.get(`${BASE_URL}/public/${id}`);
+        return response.data;
 
+    } catch (error) {
+        throw error.response ? error.response.data : { message: "An error occurred while get project by id"}
+    }
 })

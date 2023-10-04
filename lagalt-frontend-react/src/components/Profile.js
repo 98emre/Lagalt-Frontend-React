@@ -1,6 +1,7 @@
 import React, {useState, useEffect, useRef} from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { updateUser } from "../api/userAPI";
+import { getProjectById } from "../api/projectAPI";
 import { useKeycloak } from "@react-keycloak/web";
 import AddProject from "./AddProject";
 
@@ -17,7 +18,9 @@ const Profile = () => {
     const loading = useSelector((state) => state.user.loading);
     const error = useSelector((state) => state.user.error);
 
-    const { username, email, fullname, description, skills, projects } = user;
+    const userProjects = useSelector((state) => state.project.userProjects);
+
+    const { username, email, fullname, description, skills, projectIds } = user;
 
 
     const[editDescription, setEditDescription] = useState(description)
@@ -30,6 +33,14 @@ const Profile = () => {
             setSelectedSkills(new Set(skills));
         }
     }, [description, skills]);
+
+    useEffect(() => {
+        if (loading && projectIds && projectIds.length > 0) {
+            projectIds.forEach(element => {
+                dispatch(getProjectById({id: element}))
+            });
+        }
+    }, [loading, projectIds, dispatch]);
 
     const handleSkillChange = (skill) => {
         const newSkills = new Set(selectedSkills);
@@ -69,23 +80,26 @@ const Profile = () => {
     }
 
     const handleProjects = () => {
-        if (!projects || projects.length === 0) {
+        if (!userProjects || userProjects.length === 0) {
             return <p>No projects Added.</p>;
         }
 
-        return (projects.map(project => (
-            <div key={project.id}>
-                    <div>
-                        {project.title}
-                    </div>
-            </div>
+        return (userProjects.map((project) => (
+           <ul key={project.id}>
+            <li>
+                <p><strong>Title: </strong>{project.title}</p>
+                <p><strong>Description: </strong>{project.descriptions}</p>
+                <p><strong>Category: </strong> {project.category}</p>
+                <p><strong>Status: </strong> {project.status.split("_").join(" ")}</p>
+            </li>
+           </ul>
         )));
+        
     }
 
 
     return (
         <div>
-            {console.log("kkkk", user)}
             <h4>Username: {username}</h4>
             <h4>Email: {email}</h4>
             <h4>Fullname: {fullname}</h4>
@@ -101,6 +115,8 @@ const Profile = () => {
                     </label>
                 </div>
             ))}
+             
+            <h2>Your Projects</h2>
             {handleProjects()}
 
             {!isEditing ? (<button onClick={() => setIsEditing(true)}>Edit</button>) :

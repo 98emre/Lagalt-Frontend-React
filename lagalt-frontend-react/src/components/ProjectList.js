@@ -11,9 +11,9 @@ const ProjectList = () => {
   const error = useSelector((state) => state.project.error);
 
   useEffect(() => {
-        dispatch(fetchProjects())
+    dispatch(fetchProjects())
 
-  },[dispatch])
+},[dispatch])
 
   const renderList = () => {
     if (loading === 'loading') {
@@ -32,10 +32,10 @@ const ProjectList = () => {
       <ul>
         {projects.map((project) => (
           <li key={project.id}>
-            <h3>{project.title}</h3>
-            <p>{project.descriptions}</p>
+            <p><strong>Title:</strong>{project.title}</p>
+            <p><strong>Description: </strong>{project.descriptions}</p>
             <p><strong>Category:</strong> {project.category}</p>
-            <p><strong>Status:</strong> {project.status}</p>
+            <p><strong>Status:</strong> {project.status.split("_").join(" ")}</p>
           </li>
         ))}
       </ul>

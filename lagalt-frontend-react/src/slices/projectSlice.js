@@ -1,8 +1,9 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { fetchProjects, addProject } from '../api/projectAPI'; 
+import { fetchProjects, addProject, getProjectById } from '../api/projectAPI'; 
 
 const initialState = {
     projectsList: [],
+    userProjects: [],
     loading: 'idle',
     error: null,
     project: {
@@ -80,14 +81,30 @@ const projectSlice = createSlice({
                     comments: action.payload.comments || [],
                     collaborators: action.payload.comments || []
                 };
-            })
-            
+
+                if (!state.userProjects.some(project => project.id === action.payload.id)) {
+                    state.userProjects.push(action.payload);
+                }
+            }) 
             .addCase(addProject.rejected, (state, action) => {
                 state.loading = 'error';
                 state.error = action.error.message;
-            });;
+            })
+            .addCase(getProjectById.pending, (state) => {
+                state.loading = 'loading';
+            })
+            .addCase(getProjectById.fulfilled, (state, action) => {
+                state.loading = 'loaded';
 
-    }
+                if(!state.userProjects.some(project => project.id === action.payload.id)){
+                    state.userProjects.push(action.payload);
+                }
+            }) 
+            .addCase(getProjectById.rejected, (state, action) => {
+                state.loading = 'error';
+                state.error = action.error.message;
+            });;
+        }
 });
 
 export const { setProject, setTitle,setDescription,setCategory, setStatus,setUser,setComments,setCollaborators }  = projectSlice.actions;
