@@ -10,9 +10,9 @@ import LandingPage from "./pages/LandingPage"
 import ProfilePage from "./pages/ProfilePage"
 import ErrorPage from './pages/ErrorPage';
 
-import Navbar from './components/Navbar';
+import Navbar from './components/navbar/Navbar';
 import UserDataFetcher from './components/UserDataFetcher';
-import ProjectDetail from './components/ProjectDetail';
+import ProjectDetail from './components/project/ProjectDetail';
 
 
 

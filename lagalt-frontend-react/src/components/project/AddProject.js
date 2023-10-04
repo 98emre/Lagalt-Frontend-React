@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { useForm } from "react-hook-form";
-import { addProject } from '../api/projectAPI'
+import { addProject } from '../../api/projectAPI'
 import { useDispatch, useSelector } from 'react-redux';
 import { useKeycloak } from '@react-keycloak/web';
 

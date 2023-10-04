@@ -1,9 +1,9 @@
 import React, {useState, useEffect, useRef} from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { updateUser } from "../api/userAPI";
-import { getProjectById } from "../api/projectAPI";
+import { updateUser } from "../../api/userAPI";
+import { getProjectById } from "../../api/projectAPI";
 import { useKeycloak } from "@react-keycloak/web";
-import AddProject from "./AddProject";
+import AddProject from "../project/AddProject";
 
 
 const SKILLS = ["JAVA", "JAVASCRIPT", "REACT", "ANGULAR", "C"];

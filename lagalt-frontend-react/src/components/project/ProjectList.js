@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 
-import { fetchProjects} from "../api/projectAPI";
+import { fetchProjects} from "../../api/projectAPI";
 import { Link } from "react-router-dom";
 
 const ProjectList = () => {

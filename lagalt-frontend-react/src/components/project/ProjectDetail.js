@@ -1,10 +1,9 @@
 
 import React, {useState, useEffect} from 'react'
-import { useNavigate } from 'react-router-dom';
+import { useNavigate,useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { useParams } from 'react-router-dom';
-import { getProjectById } from '../api/projectAPI';
-import { getUserById } from '../api/userAPI';
+import { getProjectById } from '../../api/projectAPI';
+import { getUserById } from '../../api/userAPI';
 
 function ProjectDetail() {
 
@@ -18,7 +17,7 @@ function ProjectDetail() {
     const[user, setUser] = useState({});
        
     useEffect(() => {
-        if (project.id !== id) {
+        if (project.id != id || !user.username) {
             dispatch(getProjectById({id: id}))
             .then(result => {
                 if (result.payload.userId) {
@@ -43,7 +42,7 @@ function ProjectDetail() {
         <p><strong>Title:</strong>{project.title}</p>
         <p><strong>Description: </strong>{project.descriptions}</p>
         <p><strong>Category:</strong> {project.category}</p>
-        <p><strong>Status:</strong> {project.status}</p>
+        <p><strong>Status:</strong> {project.status?.split("_").join(" ") || 'N/A'}</p>
 
         <button onClick={() => navigate(-1)}>Go Back</button>
     </div>
