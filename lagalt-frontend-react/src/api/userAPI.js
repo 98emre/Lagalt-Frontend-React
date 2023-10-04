@@ -58,4 +58,14 @@ export const updateUser = createAsyncThunk("user/updateUser", async ({ id, userU
 })
 
 
+export const getUserById = createAsyncThunk("user/getUserById", async(id)=> {
+    try {
+        const response = await axios.get(`${BASE_URL}/public/${id}`);
+        return response.data
+    } catch (error) {
+        console.log("Error message while getting user by id: ", error);
+        throw error;
+    }
+})
+
 

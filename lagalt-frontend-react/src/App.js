@@ -12,6 +12,7 @@ import ErrorPage from './pages/ErrorPage';
 
 import Navbar from './components/Navbar';
 import UserDataFetcher from './components/UserDataFetcher';
+import ProjectDetail from './components/ProjectDetail';
 
 
 
@@ -34,6 +35,7 @@ const MainContent = () => {
       <Navbar />
       <Routes>
           <Route path='/' element={<LandingPage />} />
+          <Route path="/project/:id" element={<ProjectDetail/>} />
           <Route path='/profile' element={<ProfilePage />} />
           <Route path='/*' element={<ErrorPage />} />
       </Routes>

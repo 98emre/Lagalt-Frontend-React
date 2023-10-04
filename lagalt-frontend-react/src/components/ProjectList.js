@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 
 import { fetchProjects} from "../api/projectAPI";
+import { Link } from "react-router-dom";
 
 const ProjectList = () => {
   const dispatch = useDispatch();
@@ -32,10 +33,13 @@ const ProjectList = () => {
       <ul>
         {projects.map((project) => (
           <li key={project.id}>
+          
+          <Link to={`/project/${project.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
             <p><strong>Title:</strong>{project.title}</p>
             <p><strong>Description: </strong>{project.descriptions}</p>
             <p><strong>Category:</strong> {project.category}</p>
             <p><strong>Status:</strong> {project.status.split("_").join(" ")}</p>
+            </Link>
           </li>
         ))}
       </ul>

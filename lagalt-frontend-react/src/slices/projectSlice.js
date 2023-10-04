@@ -13,9 +13,9 @@ const initialState = {
         gitlink: '',
         category: null,
         status: null,
-        user: {},
-        comments: [],
-        collaborators: []
+        userId: {},
+        commentIds: [],
+        collaboratorIds: []
     }
 };
 
@@ -99,6 +99,7 @@ const projectSlice = createSlice({
                 if(!state.userProjects.some(project => project.id === action.payload.id)){
                     state.userProjects.push(action.payload);
                 }
+                state.project = action.payload;
             }) 
             .addCase(getProjectById.rejected, (state, action) => {
                 state.loading = 'error';
