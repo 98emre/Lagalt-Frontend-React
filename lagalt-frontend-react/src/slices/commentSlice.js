@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-
+import { addComment } from '../api/commentAPI';
 
 const initialState = {
     projectCommentList: [],
@@ -35,7 +35,21 @@ const commentSlice = createSlice({
         setProjectId: (state, action) => {
             state.projectId = action.payload;
         }
-    })
+    }),
+    extraReducers: (builder) => {
+        builder
+            .addCase(addComment.pending, (state) => {
+                state.loading = "loading";
+            })
+            .addCase(addComment.fulfilled, (state, action) => {
+                state.loading = 'loaded';
+                state.comment = action.payload;
+            })
+            .addCase(addComment.rejected, (state, action) => {
+                state.loading = 'failed';
+                state.error = action.error.message;
+            })
+    }
 })
 
 
