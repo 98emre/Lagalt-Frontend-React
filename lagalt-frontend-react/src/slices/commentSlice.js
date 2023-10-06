@@ -44,10 +44,15 @@ const commentSlice = createSlice({
             .addCase(addComment.fulfilled, (state, action) => {
                 state.loading = 'loaded';
                 state.comment = action.payload;
+            
+              
+                if (!state.projectCommentList.some(comment => comment.id === action.payload.id)) {
+                    state.projectCommentList.push(action.payload);
+                }
             })
             .addCase(addComment.rejected, (state, action) => {
                 state.loading = 'failed';
-                state.error = action.error.message;
+                state.error = action.error.message;              
             })
             .addCase(getCommentById.pending, (state)=> {
                 state.loading = "loading"

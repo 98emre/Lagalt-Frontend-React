@@ -90,7 +90,7 @@ const Profile = () => {
                 <p><strong>Title: </strong>{project.title}</p>
                 <p><strong>Description: </strong>{project.descriptions}</p>
                 <p><strong>Category: </strong> {project.category}</p>
-                <p><strong>Status: </strong> {project.status.split("_").join(" ")}</p>
+                <p><strong>Status: </strong> {project.status.split("_").join(" ") || 'N/A'} </p>
             </li>
            </ul>
         )));

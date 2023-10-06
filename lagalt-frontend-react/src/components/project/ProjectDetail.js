@@ -20,16 +20,36 @@ function ProjectDetail() {
     const id = parseInt(stringId, 10);
 
     const project = useSelector((state) => state.project.project);
+    const loading = useSelector((state) => state.project.loading);
+    const error = useSelector((state) => state.project.error);
     const comments = useSelector((state) => state.comment.projectCommentList);
-
+    
     const[owner, setOwner] = useState({});
-       
+    const[commentUsers, setCommentUser] = useState({})
+    
+
     const {keycloak} = useKeycloak();
+
+    const fetchCommentUsers = (commentIds) => {
+        dispatch(getCommentById({ids: commentIds}))
+            .then(result => {
+                result.payload.forEach(comment => {
+                    dispatch(getUserById(comment.userId))
+                        .then(userResult => {
+                            setCommentUser(prevState => ({
+                                ...prevState,
+                                [comment.id]: userResult.payload.username
+                            }));
+                        });
+                });
+            });
+    };
 
     useEffect(() => {
         if (project.id != id || !owner.username) {
             dispatch(getProjectById({id: id}))
             .then(result => {
+
                 if (result.payload.userId) {
                     dispatch(getUserById(result.payload.userId))
                     .then(userResult => setOwner(userResult.payload))
@@ -37,14 +57,17 @@ function ProjectDetail() {
                 }
 
                 if(result.payload.commentIds){
-                    dispatch(getCommentById({ids: result.payload.commentIds}))
+                   fetchCommentUsers(result.payload.commentIds)
                 }
                 
             })
             .catch(error => console.log("Project fetch error: ", error)); 
         }
-    }, [id, project, dispatch, owner]);
+    }, [id, project, dispatch, owner,commentUsers]);
     
+    if (error) {
+        return <p>Error: {error.message}</p>;
+    }
 
     if (!project) {
         return <p>Project not found.</p>;
@@ -65,6 +88,13 @@ function ProjectDetail() {
                 projectId: project.id,
                 token: keycloak.token
         }))
+        .then(result => {
+            setCommentUser(prevState => ({
+                ...prevState,
+                [result.payload.id]: owner.username
+            }));
+        });
+        
         reset();
     };
 
@@ -80,8 +110,8 @@ function ProjectDetail() {
                     {comments.map(comment => (
                         <li key={comment.id}>
                             {comment.text + " "}
-                            {formatDate(comment.date) + ""}
-                            {comment.userId}
+                            {formatDate(comment.date) + " "}
+                            {commentUsers[comment.id] || "Loading..."}
                         </li>
                     ))}
                 </ul>
@@ -106,7 +136,7 @@ function ProjectDetail() {
 
          {handleComments()}
 
-        <button onClick={() => navigate(-1)}>Go Back</button>
+        <button onClick={() => navigate("/")}>Go Back</button>
     </div>
   )
 }
