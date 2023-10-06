@@ -6,8 +6,9 @@ import { getProjectById } from '../../api/projectAPI';
 import { getUserById } from '../../api/userAPI';
 
 import { useForm } from 'react-hook-form';
-import {addComment} from "../../api/commentAPI";
+import {addComment, getCommentById} from "../../api/commentAPI";
 import { useKeycloak } from '@react-keycloak/web';
+import { formatDate } from '../../utlilites';
 
 function ProjectDetail() {
 
@@ -19,23 +20,30 @@ function ProjectDetail() {
     const id = parseInt(stringId, 10);
 
     const project = useSelector((state) => state.project.project);
-    const[user, setUser] = useState({});
+    const comments = useSelector((state) => state.comment.projectCommentList);
+
+    const[owner, setOwner] = useState({});
        
     const {keycloak} = useKeycloak();
 
     useEffect(() => {
-        if (project.id != id || !user.username) {
+        if (project.id != id || !owner.username) {
             dispatch(getProjectById({id: id}))
             .then(result => {
                 if (result.payload.userId) {
                     dispatch(getUserById(result.payload.userId))
-                    .then(userResult => setUser(userResult.payload))
+                    .then(userResult => setOwner(userResult.payload))
                     .catch(error => console.log("User fetch error: ", error));
                 }
+
+                if(result.payload.commentIds){
+                    dispatch(getCommentById({ids: result.payload.commentIds}))
+                }
+                
             })
             .catch(error => console.log("Project fetch error: ", error)); 
         }
-    }, [id, project, dispatch, user]);
+    }, [id, project, dispatch, owner]);
     
 
     if (!project) {
@@ -43,12 +51,11 @@ function ProjectDetail() {
     }
 
     const onSubmit = (data) => {
-        console.log("prrr ", project)
         const comment = {
             id: null,
             text: data.comment,
             date: new Date(),
-            userId: user.id,
+            userId: owner.id,
             projectId: project.id
         };
 
@@ -61,9 +68,31 @@ function ProjectDetail() {
         reset();
     };
 
+    const handleComments = () => {
+        if (!comments || comments.length === 0) {
+            return <p>No comments available.</p>;
+        }
+
+        return (
+            <div>
+                <h3>Comments</h3>
+                <ul>
+                    {comments.map(comment => (
+                        <li key={comment.id}>
+                            {comment.text + " "}
+                            {formatDate(comment.date) + ""}
+                            {comment.userId}
+                        </li>
+                    ))}
+                </ul>
+            </div>
+        );
+
+    }
+
   return (
     <div>
-        <p><strong>Owner: </strong>{user.username}</p>
+        <p><strong>Owner: </strong>{owner.username}</p>
         <p><strong>Title:</strong>{project.title}</p>
         <p><strong>Description: </strong>{project.descriptions}</p>
         <p><strong>Category:</strong> {project.category}</p>
@@ -74,6 +103,8 @@ function ProjectDetail() {
             {errors?.comment?.message && <p style={{color: 'red'}}>{errors.comment.message}</p>}
             <input type="submit" value="Add Comment" />
          </form>
+
+         {handleComments()}
 
         <button onClick={() => navigate(-1)}>Go Back</button>
     </div>
