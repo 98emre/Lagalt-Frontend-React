@@ -7,7 +7,7 @@ import { useKeycloak } from '@react-keycloak/web';
 
 import { getProjectById } from '../../api/projectAPI';
 import { getUserById } from '../../api/userAPI';
-import { addComment, getCommentById } from "../../api/commentAPI";
+import { addComment, getCommentById, getAllCommentsByProjectId } from "../../api/commentAPI";
 import { sendCollaboratorRequest } from '../../api/collaboratorAPI';
 
 
@@ -23,9 +23,10 @@ function ProjectDetail() {
     const { id:stringId } = useParams();
     const id = parseInt(stringId, 10);
 
+    const user = useSelector((state) => state.user.user);
     const project = useSelector((state) => state.project.project);
     const error = useSelector((state) => state.project.error);
-    const comments = useSelector((state) => state.comment.projectCommentList);
+    const comments = useSelector((state) => state.comment.commentList);
     const collaborators = useSelector((state) => state.collaborator.collaboratorsList);
     
     const[owner, setOwner] = useState({});
@@ -36,40 +37,18 @@ function ProjectDetail() {
     const [collaboratorRequest, setCollaboratorRequest] = useState(false);
     const [motivationText, setMotivationText] = useState(''); 
 
-
-    console.log(collaborators)
-    const fetchCommentUsers = (commentIds) => {
-        dispatch(getCommentById({ids: commentIds}))
-            .then(result => {
-                result.payload.forEach(comment => {
-                    dispatch(getUserById(comment.userId))
-                        .then(userResult => {
-                            setCommentUser(prevState => ({
-                                ...prevState,
-                                [comment.id]: userResult.payload.username
-                            }));
-                        });
-                });
-            });
-    };
-
+    const [collaboratorStatus, setCollaboratorStatus] = useState("");
+    
     useEffect(() => {
         if (project.id != id || !owner.username) {
             dispatch(getProjectById({id: id}))
-            .then(result => {
-
-                if (result.payload.userId) {
-                    dispatch(getUserById(result.payload.userId))
-                    .then(userResult => setOwner(userResult.payload))
-                    .catch(error => console.log("User fetch error: ", error));
-                }
-
-                if(result.payload.commentIds){
-                   fetchCommentUsers(result.payload.commentIds)
-                }
-                
+            .then(result => {                
+                dispatch(getUserById(result.payload.userId))
+                .then(result => setOwner(result.payload))
             })
             .catch(error => console.log("Project fetch error: ", error)); 
+
+            dispatch(getAllCommentsByProjectId({id: id, token: keycloak.token}))
         }
     }, [id, project, dispatch, owner,commentUsers]);
     
@@ -86,7 +65,7 @@ function ProjectDetail() {
             id: null,
             text: data.comment,
             date: new Date(),
-            userId: owner.id,
+            userId: user.id,
             projectId: project.id
         };
 
@@ -99,10 +78,11 @@ function ProjectDetail() {
         .then(result => {
             setCommentUser(prevState => ({
                 ...prevState,
-                [result.payload.id]: owner.username
+                [result.payload.id]: user.username
             }));
         });
         
+        setSendComment(false);
         reset();
     };
 
@@ -110,6 +90,8 @@ function ProjectDetail() {
         if (!comments || comments.length === 0) {
             return <p>No comments available.</p>;
         }
+
+        
 
         return (
             <div>
@@ -148,6 +130,13 @@ function ProjectDetail() {
         setCollaboratorRequest(false);
     }
 
+    const handleCollaboratorStatus = () => {
+        collaborators.map(collaborator => {
+           
+        })
+
+    }
+
   return (
     <div>
         <p><strong>Owner: </strong>{owner.username}</p>
@@ -155,6 +144,8 @@ function ProjectDetail() {
         <p><strong>Description: </strong>{project.descriptions}</p>
         <p><strong>Category:</strong> {project.category}</p>
         <p><strong>Status:</strong> {project.status?.split("_").join(" ") || 'N/A'}</p>
+
+        {handleCollaboratorStatus()}
 
         {collaboratorRequest ? (
                 <div>
@@ -169,8 +160,8 @@ function ProjectDetail() {
          { sendComment ? (<form onSubmit={handleSubmit(onSubmit)}>
             <textarea {...register("comment")}></textarea>
             {errors?.comment?.message && <p style={{color: 'red'}}>{errors.comment.message}</p>}
-            <button type='submit' onClick={() => setSendComment(false)}>Send Comment</button>
-            <button type='submit' onClick={() => setSendComment(false)}>Close Comment</button>
+            <button type='submit'>Send Comment</button>
+            <button onClick={() => setSendComment(false)}>Close Comment</button>
 
 
          </form> ) : <button onClick={() => setSendComment(true)}>Add Comment</button>

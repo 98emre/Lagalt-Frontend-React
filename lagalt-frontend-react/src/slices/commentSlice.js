@@ -1,8 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { addComment, getCommentById } from '../api/commentAPI';
+import { addComment, getCommentById, getAllCommentsByProjectId } from '../api/commentAPI';
 
 const initialState = {
-    projectCommentList: [],
+    commentList: [],
     loading: 'idle',
     error: null,
     comment: {
@@ -18,22 +18,22 @@ const commentSlice = createSlice({
     name: "comment",
     initialState,
     reducers: ({
-        setComment: (state,action) => action.payload,
+        setComment: (state,action) => state.comment = action.payload,
 
         setText: (state, action) => {
-            state.text = action.payload;
+            state.comment.text = action.payload;
         },
 
         setDate: (state, action) => {
-            state.date = action.payload;
+            state.comment.date = action.payload;
         },
 
         setUserId: (state, action) => {
-            state.userId = action;
+            state.comment.userId = action.payload;
         },
 
         setProjectId: (state, action) => {
-            state.projectId = action.payload;
+            state.comment.projectId = action.payload;
         }
     }),
     extraReducers: (builder) => {
@@ -43,13 +43,10 @@ const commentSlice = createSlice({
             })
             .addCase(addComment.fulfilled, (state, action) => {
                 state.loading = 'loaded';
-                state.comment = action.payload;
-            
-              
-                if (!state.projectCommentList.some(comment => comment.id === action.payload.id)) {
-                    state.projectCommentList.push(action.payload);
-                }
+                state.comment = action.payload;                
+                state.commentList.push(action.payload);
             })
+            
             .addCase(addComment.rejected, (state, action) => {
                 state.loading = 'failed';
                 state.error = action.error.message;              
@@ -59,10 +56,22 @@ const commentSlice = createSlice({
             })
             .addCase(getCommentById.fulfilled, (state, action) => {
                 state.loading = "loaded";
-                state.projectCommentList = action.payload;
+                state.comment = action.payload;
 
             })
             .addCase(getCommentById.rejected, (state,action) => {
+                state.loading = "failed";
+                state.error = action.error.message;
+            })
+            .addCase(getAllCommentsByProjectId.pending, (state)=> {
+                state.loading = "loading"
+            })
+            .addCase(getAllCommentsByProjectId.fulfilled, (state, action) => {
+                state.loading = "loaded";
+                state.commentList = action.payload;
+
+            })
+            .addCase(getAllCommentsByProjectId.rejected, (state,action) => {
                 state.loading = "failed";
                 state.error = action.error.message;
             })

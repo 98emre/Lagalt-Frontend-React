@@ -21,19 +21,41 @@ export const addComment = createAsyncThunk("comment/addComment", async({comment,
         return response.data;
 
     } catch (error) {
-        throw error.response ? error.response.data: {message: "An error occurred while posting project"}
+        throw error.response ? error.response.data: {message: "An error occurred while posting a comment"}
     }
 })
 
-export const getCommentById = createAsyncThunk("comment/getCommentById", async({ids})=>{
-    let comments = [];
-    for(let id of ids) {
-        try {
-            const response = await axios.get(`${BASE_URL}/public/${id}`);
-            comments.push(response.data);
-        } catch (error) {
-            console.error("Error fetching comment with ID:", id);
-        }
+export const getAllCommentsByProjectId = createAsyncThunk("comment/getAllCommentsByProjectId", async({id, token}) => {
+    if (!token) {
+        throw { message: "Token is not available" };
     }
-    return comments;
-});
+   
+    try {
+        const response = await axios.get(`${BASE_URL}/public/project/${id}`,{
+            headers:{
+                Authorization: `Bearer ${token}`,
+                "Content-Type": 'application/json'
+            }
+        });
+
+        return response.data;
+
+    } catch (error) {
+        throw error.response ? error.response.data: {message: "An error occurred while posting a comment"}
+    }
+})
+
+
+export const getCommentById = createAsyncThunk("comment/getCommentById", async({id, token}) => {
+    if (!token) {
+        throw { message: "Token is not available" };
+    }
+
+    try {
+        const response = await axios.get(`${BASE_URL}/public/${id}`);
+        return response.data;
+        
+    } catch (error) {
+        throw error.response ? error.response.data: {message: "An error occurred while getting comment by id"}
+    }
+})
