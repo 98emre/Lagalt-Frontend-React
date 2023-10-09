@@ -20,9 +20,10 @@ function ProjectDetail() {
     const id = parseInt(stringId, 10);
 
     const project = useSelector((state) => state.project.project);
-    const loading = useSelector((state) => state.project.loading);
     const error = useSelector((state) => state.project.error);
     const comments = useSelector((state) => state.comment.projectCommentList);
+
+    console.log(comments)
     
     const[owner, setOwner] = useState({});
     const[commentUsers, setCommentUser] = useState({})

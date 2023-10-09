@@ -115,13 +115,13 @@ const Profile = () => {
                     </label>
                 </div>
             ))}
-             
-            <h2>Your Projects</h2>
-            {handleProjects()}
 
             {!isEditing ? (<button onClick={() => setIsEditing(true)}>Edit</button>) :
                 (<button onClick={handleSave}>Save</button>)
             }
+
+            <h2>Your Projects</h2>
+            {handleProjects()}
 
             <AddProject/>
         
