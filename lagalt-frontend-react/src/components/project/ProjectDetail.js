@@ -2,12 +2,15 @@
 import React, {useState, useEffect} from 'react'
 import { useNavigate,useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import { useForm } from 'react-hook-form';
+import { useKeycloak } from '@react-keycloak/web';
+
 import { getProjectById } from '../../api/projectAPI';
 import { getUserById } from '../../api/userAPI';
+import { addComment, getCommentById } from "../../api/commentAPI";
+import { sendCollaboratorRequest } from '../../api/collaboratorAPI';
 
-import { useForm } from 'react-hook-form';
-import {addComment, getCommentById} from "../../api/commentAPI";
-import { useKeycloak } from '@react-keycloak/web';
+
 import { formatDate } from '../../utlilites';
 
 function ProjectDetail() {
@@ -15,6 +18,7 @@ function ProjectDetail() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const { register, handleSubmit, errors, reset } = useForm();
+    const {keycloak} = useKeycloak();
 
     const { id:stringId } = useParams();
     const id = parseInt(stringId, 10);
@@ -22,15 +26,18 @@ function ProjectDetail() {
     const project = useSelector((state) => state.project.project);
     const error = useSelector((state) => state.project.error);
     const comments = useSelector((state) => state.comment.projectCommentList);
-
-    console.log(comments)
+    const collaborators = useSelector((state) => state.collaborator.collaboratorsList);
     
     const[owner, setOwner] = useState({});
+
     const[commentUsers, setCommentUser] = useState({})
-    
+    const [sendComment, setSendComment] = useState(false);
 
-    const {keycloak} = useKeycloak();
+    const [collaboratorRequest, setCollaboratorRequest] = useState(false);
+    const [motivationText, setMotivationText] = useState(''); 
 
+
+    console.log(collaborators)
     const fetchCommentUsers = (commentIds) => {
         dispatch(getCommentById({ids: commentIds}))
             .then(result => {
@@ -118,7 +125,27 @@ function ProjectDetail() {
                 </ul>
             </div>
         );
+    }
 
+    const handleCollaborators = () => {
+        const collaborator = {
+            id: null,
+            status: "PENDING",
+            requestDate: new Date(),
+            approvalDate: null,
+            motivation: motivationText,
+            userId: owner.id,
+            project: project.d
+        }
+        
+        dispatch(
+            sendCollaboratorRequest({
+                projectId: project.id,
+                collaborator: collaborator,
+                token: keycloak.token
+            }))
+            
+        setCollaboratorRequest(false);
     }
 
   return (
@@ -129,11 +156,25 @@ function ProjectDetail() {
         <p><strong>Category:</strong> {project.category}</p>
         <p><strong>Status:</strong> {project.status?.split("_").join(" ") || 'N/A'}</p>
 
-         <form onSubmit={handleSubmit(onSubmit)}>
-            <textarea {...register("comment", {minLength: 3})}></textarea>
+        {collaboratorRequest ? (
+                <div>
+                    <h3>Send Request</h3>
+                    <textarea value={motivationText} onChange={(e) => setMotivationText(e.target.value)} placeholder="Write your text..."></textarea>
+                    <button onClick={handleCollaborators}>Send</button>
+                    <button onClick={()=> setCollaboratorRequest(false)}>Close</button>
+                </div>
+            ) :     <button onClick={() => setCollaboratorRequest(true)}>Collaborator Request</button>
+        }
+
+         { sendComment ? (<form onSubmit={handleSubmit(onSubmit)}>
+            <textarea {...register("comment")}></textarea>
             {errors?.comment?.message && <p style={{color: 'red'}}>{errors.comment.message}</p>}
-            <input type="submit" value="Add Comment" />
-         </form>
+            <button type='submit' onClick={() => setSendComment(false)}>Send Comment</button>
+            <button type='submit' onClick={() => setSendComment(false)}>Close Comment</button>
+
+
+         </form> ) : <button onClick={() => setSendComment(true)}>Add Comment</button>
+         }
 
          {handleComments()}
 

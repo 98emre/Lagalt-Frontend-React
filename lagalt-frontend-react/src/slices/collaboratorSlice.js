@@ -7,6 +7,7 @@ const initialState = {
     collaboratorsList: [],
     collaborator: {
         id: null,
+        status: null,
         requestDate: null,
         approvalDate: null,
         motivation: '',
@@ -20,6 +21,10 @@ const collaboratorSlice = createSlice({
     initialState,
     reducers: {
         setCollaborator: (state, action) => action.payload,
+
+        setStatus: (state, action) => {
+            state.status = action.payload;
+        },
 
         setRequestDate: (state, action) => {
             state.requestDate = action.payload;
@@ -48,7 +53,8 @@ const collaboratorSlice = createSlice({
             }) 
             .addCase(sendCollaboratorRequest.fulfilled, (state, action) => {
                 state.loading = "loaded";
-                state.collaboratorsList = action.payload;
+                state.collaborator = action.payload;
+                state.collaboratorsList.push(action.payload);
             })
             .addCase(sendCollaboratorRequest.rejected, (state, action) => {
                 state.loading = "failed";
