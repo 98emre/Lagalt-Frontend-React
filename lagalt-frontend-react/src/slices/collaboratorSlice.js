@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { sendCollaboratorRequest } from '../api/collaboratorAPI';
+import { sendCollaboratorRequest, getCollaborators, updateCollaboratorRequest, deleteCollaboratorRequest } from '../api/collaboratorAPI';
 
 const initialState = {
     loading: 'idle',
@@ -57,6 +57,43 @@ const collaboratorSlice = createSlice({
                 state.collaboratorsList.push(action.payload);
             })
             .addCase(sendCollaboratorRequest.rejected, (state, action) => {
+                state.loading = "failed";
+                state.error = action.error.message;
+            })
+            .addCase(getCollaborators.pending, (state,action) => {
+                state.loading = "loading";
+            }) 
+            .addCase(getCollaborators.fulfilled, (state, action) => {
+                state.loading = "loaded";
+                state.collaborator = action.payload;
+                
+                if(!state.collaboratorsList.some(collaborator => collaborator.id === action.payload.id)){
+                    state.collaboratorsList.push(action.payload);
+                }
+            })
+            .addCase(getCollaborators.rejected, (state, action) => {
+                state.loading = "failed";
+                state.error = action.error.message;
+            })
+            .addCase(updateCollaboratorRequest.pending, (state,action) => {
+                state.loading = "loading";
+            }) 
+            .addCase(updateCollaboratorRequest.fulfilled, (state, action) => {
+                state.loading = "loaded";
+                state.collaborator = action.payload;
+            })
+            .addCase(getCollaborators.rejected, (state, action) => {
+                state.loading = "failed";
+                state.error = action.error.message;
+            })
+            .addCase(deleteCollaboratorRequest.pending, (state,action) => {
+                state.loading = "loading";
+            }) 
+            .addCase(deleteCollaboratorRequest.fulfilled, (state, action) => {
+                state.loading = "loaded";
+                state.collaborator = action.payload;
+            })
+            .addCase(deleteCollaboratorRequest.rejected, (state, action) => {
                 state.loading = "failed";
                 state.error = action.error.message;
             })
