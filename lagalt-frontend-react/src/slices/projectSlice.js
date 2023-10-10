@@ -83,7 +83,9 @@ const projectSlice = createSlice({
                 };
 
                 if (!state.userProjects.some(project => project.id === action.payload.id)) {
-                    state.userProjects.push(action.payload);
+                    if(state.project.userId == action.payload.userId){
+                        state.userProjects.push(action.payload);
+                    }
                 }
             }) 
             .addCase(addProject.rejected, (state, action) => {
@@ -95,16 +97,16 @@ const projectSlice = createSlice({
             })
             .addCase(getProjectById.fulfilled, (state, action) => {
                 state.loading = 'loaded';
+                state.project = action.payload;
 
                 if(!state.userProjects.some(project => project.id === action.payload.id)){
                     state.userProjects.push(action.payload);
                 }
-                state.project = action.payload;
             }) 
             .addCase(getProjectById.rejected, (state, action) => {
                 state.loading = 'error';
                 state.error = action.error.message;
-            });;
+            });
         }
 });
 

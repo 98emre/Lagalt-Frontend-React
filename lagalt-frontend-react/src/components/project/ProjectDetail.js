@@ -132,21 +132,23 @@ function ProjectDetail() {
         <p><strong>Category:</strong> {project.category}</p>
         <p><strong>Status:</strong> {project.status?.split("_").join(" ") || 'N/A'}</p>
 
-        {collaboratorRequest ? (
-            <div>                    <h3>Send Request</h3>
+        {owner.username != user.username &&
+        
+        (collaboratorRequest ? (
+            <div>                    
+                <h3>Send Request</h3>
                 <textarea value={motivationText} onChange={(e) => setMotivationText(e.target.value)} placeholder="Write your text..."></textarea>
                 <button onClick={handleCollaborators}>Send</button>
                 <button onClick={()=> setCollaboratorRequest(false)}>Close</button>
             </div>
             ) :   <button onClick={() => setCollaboratorRequest(true)}>Collaborator Request</button>
-        }
+        )}
 
         {sendComment ? (<form onSubmit={handleSubmit(onSubmit)}>
             <textarea {...register("comment")}></textarea>
             {errors?.comment?.message && <p style={{color: 'red'}}>{errors.comment.message}</p>}
             <button type='submit'>Send Comment</button>
             <button onClick={() => setSendComment(false)}>Close Comment</button>
-
 
             </form> ) : <button onClick={() => setSendComment(true)}>Add Comment</button>
         }
