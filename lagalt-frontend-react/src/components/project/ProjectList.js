@@ -2,16 +2,20 @@ import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 
 import { fetchProjects} from "../../api/projectAPI";
+import { setCurrentUserId } from "../../slices/projectSlice"
+
 import { Link } from "react-router-dom";
 
 const ProjectList = () => {
   const dispatch = useDispatch();
 
+  const user = useSelector((state) => state.user.user)
   const projects = useSelector((state) => state.project.projectsList);
   const loading = useSelector((state) => state.project.loading);
   const error = useSelector((state) => state.project.error);
 
   useEffect(() => {
+    dispatch(setCurrentUserId(user.id));
     dispatch(fetchProjects())
 
 },[dispatch])

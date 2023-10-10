@@ -20,7 +20,7 @@ const Profile = () => {
 
     const userProjects = useSelector((state) => state.project.userProjects);
 
-    const { username, email, fullname, description, skills, projectIds } = user;
+    const { username, email, fullname, description, skills} = user;
 
 
     const[editDescription, setEditDescription] = useState(description)
@@ -35,12 +35,12 @@ const Profile = () => {
     }, [description, skills]);
 
     useEffect(() => {
-        if (loading && projectIds && projectIds.length > 0) {
-            projectIds.forEach(element => {
+        if (loading && user.projectIds && user.projectIds.length > 0) {
+            user.projectIds.forEach(element => {
                 dispatch(getProjectById({id: element}))
             });
         }
-    }, [loading, projectIds, dispatch]);
+    }, [loading, user.projectIds, dispatch]);
 
     const handleSkillChange = (skill) => {
         const newSkills = new Set(selectedSkills);
@@ -106,7 +106,7 @@ const Profile = () => {
             <h4>Description: {description}</h4>
             {isEditing && <textarea value={editDescription} onChange={(e) => setEditDescription(e.target.value)} />}
 
-            <h4>Skills {skills.join(", ")}</h4>
+            <h4>Skills {skills.join(", ") || ' '}</h4>
             {isEditing && SKILLS.map(skill => (
                 <div key={skill}>
                     <label>

@@ -27,16 +27,15 @@ function ProjectDetail() {
     const project = useSelector((state) => state.project.project);
     const comments = useSelector((state) => state.comment.commentList);
     const commentUsernames = useSelector((state) => state.comment.commentUsers)
-    const collaborators = useSelector((state) => state.collaborator.collaboratorsList);
     
     const[owner, setOwner] = useState({});
     const [sendComment, setSendComment] = useState(false);
 
     const [collaboratorRequest, setCollaboratorRequest] = useState(false);
     const [motivationText, setMotivationText] = useState(''); 
-
-    const [collaboratorStatus, setCollaboratorStatus] = useState("");
     
+    console.log(project)
+
     useEffect(() => {
         if (project.id != id || !owner.username) {
             dispatch(getProjectById({id: id}))
@@ -57,10 +56,15 @@ function ProjectDetail() {
 
     }, [comments, commentUsernames, dispatch])
     
+    useEffect(() => {
+        
+
+    }, [dispatch])
+
     const getUsernameByUserId = (userId) => {
         const user = commentUsernames.find(user => user.id === userId);
         return user ? user.username : "Loading...";
-      }
+    }
 
     const onSubmit = (data) => {
         const comment = {
@@ -132,17 +136,27 @@ function ProjectDetail() {
         <p><strong>Category:</strong> {project.category}</p>
         <p><strong>Status:</strong> {project.status?.split("_").join(" ") || 'N/A'}</p>
 
-        {owner.username != user.username &&
-        
-        (collaboratorRequest ? (
-            <div>                    
-                <h3>Send Request</h3>
-                <textarea value={motivationText} onChange={(e) => setMotivationText(e.target.value)} placeholder="Write your text..."></textarea>
-                <button onClick={handleCollaborators}>Send</button>
-                <button onClick={()=> setCollaboratorRequest(false)}>Close</button>
-            </div>
-            ) :   <button onClick={() => setCollaboratorRequest(true)}>Collaborator Request</button>
-        )}
+        { (owner.username !== user.username) && (
+    collaboratorStatus === "PENDING" ? (
+        <p>Your collaborator request is pending.</p>
+    ) : collaboratorStatus === "APPROVED" ? (
+        <p>You are approved as a collaborator.</p>
+    ) : collaboratorRequest ? (
+        <div>
+            <h3>Send Request</h3>
+            <textarea 
+                value={motivationText} 
+                onChange={(e) => setMotivationText(e.target.value)} 
+                placeholder="Write your text..."
+            ></textarea>
+            <button onClick={handleCollaborators}>Send</button>
+            <button onClick={() => setCollaboratorRequest(false)}>Close</button>
+        </div>
+    ) : (
+        <button onClick={() => setCollaboratorRequest(true)}>Collaborator Request</button>
+    )
+)}
+
 
         {sendComment ? (<form onSubmit={handleSubmit(onSubmit)}>
             <textarea {...register("comment")}></textarea>

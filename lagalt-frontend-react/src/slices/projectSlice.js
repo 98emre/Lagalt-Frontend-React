@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import { fetchProjects, addProject, getProjectById } from '../api/projectAPI'; 
 
 const initialState = {
+    currentUserId: null,
     projectsList: [],
     userProjects: [],
     loading: 'idle',
@@ -24,6 +25,10 @@ const projectSlice = createSlice({
     initialState,
     reducers: {
         setProject: (state, action) => action.payload,
+        
+        setCurrentUserId: (state, action) => {
+            state.currentUserId = action.payload;
+        },
         
         setTitle: (state, action) => {
             state.title = action.payload;
@@ -99,7 +104,7 @@ const projectSlice = createSlice({
                 state.loading = 'loaded';
                 state.project = action.payload;
 
-                if(!state.userProjects.some(project => project.id === action.payload.id)){
+                if (action.payload.userId === state.currentUserId && !state.userProjects.some(project => project.id === action.payload.id)) {
                     state.userProjects.push(action.payload);
                 }
             }) 
@@ -110,6 +115,6 @@ const projectSlice = createSlice({
         }
 });
 
-export const { setProject, setTitle,setDescription,setCategory, setStatus,setUser,setComments,setCollaborators }  = projectSlice.actions;
+export const { setProject, setTitle,setDescription,setCategory, setStatus,setUser,setComments,setCollaborators,setCurrentUserId }  = projectSlice.actions;
 
 export default projectSlice.reducer;
