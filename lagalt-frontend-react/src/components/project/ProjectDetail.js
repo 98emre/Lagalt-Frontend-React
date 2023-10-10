@@ -7,8 +7,8 @@ import { useKeycloak } from '@react-keycloak/web';
 
 import { getProjectById } from '../../api/projectAPI';
 import { getUserById } from '../../api/userAPI';
-import { addComment, getCommentById, getAllCommentsByProjectId } from "../../api/commentAPI";
-import { sendCollaboratorRequest } from '../../api/collaboratorAPI';
+import { addComment, getAllCommentsByProjectId } from "../../api/commentAPI";
+import { sendCollaboratorRequest,getCollaborators } from '../../api/collaboratorAPI';
 
 
 import { formatDate } from '../../utlilites';
@@ -27,6 +27,7 @@ function ProjectDetail() {
     const project = useSelector((state) => state.project.project);
     const comments = useSelector((state) => state.comment.commentList);
     const commentUsernames = useSelector((state) => state.comment.commentUsers)
+    const collaborator = useSelector((state) => state.collaborator.collaboratorsList);
     
     const[owner, setOwner] = useState({});
     const [sendComment, setSendComment] = useState(false);
@@ -34,8 +35,6 @@ function ProjectDetail() {
     const [collaboratorRequest, setCollaboratorRequest] = useState(false);
     const [motivationText, setMotivationText] = useState(''); 
     
-    console.log(project)
-
     useEffect(() => {
         if (project.id != id || !owner.username) {
             dispatch(getProjectById({id: id}))
@@ -57,14 +56,20 @@ function ProjectDetail() {
     }, [comments, commentUsernames, dispatch])
     
     useEffect(() => {
-        
+        dispatch(getCollaborators())
 
-    }, [dispatch])
+    }, [dispatch, collaborator,project, id])
 
     const getUsernameByUserId = (userId) => {
         const user = commentUsernames.find(user => user.id === userId);
         return user ? user.username : "Loading...";
     }
+
+    const checkCollaboratorStatus = () => {
+        const collaboratorObj =  collaborator.flat().find(c => c.userId === user.id && c.projectId === project.id)
+        return collaboratorObj ? collaboratorObj.status : null;
+    }
+    
 
     const onSubmit = (data) => {
         const comment = {
@@ -128,6 +133,8 @@ function ProjectDetail() {
         setCollaboratorRequest(false);
     }
 
+    const collaboratorStatus = checkCollaboratorStatus();
+
   return (
     <div>
         <p><strong>Owner: </strong>{owner.username}</p>
@@ -136,27 +143,18 @@ function ProjectDetail() {
         <p><strong>Category:</strong> {project.category}</p>
         <p><strong>Status:</strong> {project.status?.split("_").join(" ") || 'N/A'}</p>
 
-        { (owner.username !== user.username) && (
-    collaboratorStatus === "PENDING" ? (
-        <p>Your collaborator request is pending.</p>
-    ) : collaboratorStatus === "APPROVED" ? (
-        <p>You are approved as a collaborator.</p>
-    ) : collaboratorRequest ? (
-        <div>
-            <h3>Send Request</h3>
-            <textarea 
-                value={motivationText} 
-                onChange={(e) => setMotivationText(e.target.value)} 
-                placeholder="Write your text..."
-            ></textarea>
-            <button onClick={handleCollaborators}>Send</button>
-            <button onClick={() => setCollaboratorRequest(false)}>Close</button>
-        </div>
-    ) : (
-        <button onClick={() => setCollaboratorRequest(true)}>Collaborator Request</button>
-    )
-)}
+        { owner.username !== user.username &&  collaboratorStatus === null &&
+             (collaboratorRequest ? (
+                    <div>                    
+                        <h3>Send Request</h3>
+                        <textarea value={motivationText} onChange={(e) => setMotivationText(e.target.value)} placeholder="Write your text..."></textarea>
+                        <button onClick={handleCollaborators}>Send</button>
+                        <button onClick={()=> setCollaboratorRequest(false)}>Close</button>
+                    </div>
+            ) : <button onClick={() => setCollaboratorRequest(true)}>Collaborator Request</button>
+)       }
 
+        { collaboratorStatus && <p>Your request status: {collaboratorStatus}</p> }
 
         {sendComment ? (<form onSubmit={handleSubmit(onSubmit)}>
             <textarea {...register("comment")}></textarea>

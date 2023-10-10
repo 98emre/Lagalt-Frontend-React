@@ -22,7 +22,6 @@ const Profile = () => {
 
     const { username, email, fullname, description, skills} = user;
 
-
     const[editDescription, setEditDescription] = useState(description)
     const[selectedSkills, setSelectedSkills] = useState(new Set(skills))
     const [isEditing, setIsEditing] = useState(false); 
