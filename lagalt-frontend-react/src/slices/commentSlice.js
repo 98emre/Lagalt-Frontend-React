@@ -1,8 +1,10 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { addComment, getCommentById, getAllCommentsByProjectId } from '../api/commentAPI';
+import { getUserById } from '../api/userAPI';
 
 const initialState = {
     commentList: [],
+    commentUsers: [],
     loading: 'idle',
     error: null,
     comment: {
@@ -45,21 +47,29 @@ const commentSlice = createSlice({
                 state.loading = 'loaded';
                 state.comment = action.payload;                
                 state.commentList.push(action.payload);
+
+                if(!state.commentUsers.some(comment => comment.id === action.payload.id)){
+                    state.commentUsers.push(action.payload);
+                }
             })
             
             .addCase(addComment.rejected, (state, action) => {
                 state.loading = 'failed';
                 state.error = action.error.message;              
             })
-            .addCase(getCommentById.pending, (state)=> {
+            .addCase(getUserById.pending, (state)=> {
                 state.loading = "loading"
             })
-            .addCase(getCommentById.fulfilled, (state, action) => {
+            .addCase(getUserById.fulfilled, (state, action) => {
                 state.loading = "loaded";
                 state.comment = action.payload;
 
+                if(!state.commentUsers.some(comment => comment.id === action.payload.id)){
+                    state.commentUsers.push(action.payload);
+                }
+
             })
-            .addCase(getCommentById.rejected, (state,action) => {
+            .addCase(getUserById.rejected, (state,action) => {
                 state.loading = "failed";
                 state.error = action.error.message;
             })
@@ -69,7 +79,6 @@ const commentSlice = createSlice({
             .addCase(getAllCommentsByProjectId.fulfilled, (state, action) => {
                 state.loading = "loaded";
                 state.commentList = action.payload;
-
             })
             .addCase(getAllCommentsByProjectId.rejected, (state,action) => {
                 state.loading = "failed";

@@ -25,13 +25,11 @@ function ProjectDetail() {
 
     const user = useSelector((state) => state.user.user);
     const project = useSelector((state) => state.project.project);
-    const error = useSelector((state) => state.project.error);
     const comments = useSelector((state) => state.comment.commentList);
+    const commentUsernames = useSelector((state) => state.comment.commentUsers)
     const collaborators = useSelector((state) => state.collaborator.collaboratorsList);
     
     const[owner, setOwner] = useState({});
-
-    const[commentUsers, setCommentUser] = useState({})
     const [sendComment, setSendComment] = useState(false);
 
     const [collaboratorRequest, setCollaboratorRequest] = useState(false);
@@ -46,19 +44,23 @@ function ProjectDetail() {
                 dispatch(getUserById(result.payload.userId))
                 .then(result => setOwner(result.payload))
             })
-            .catch(error => console.log("Project fetch error: ", error)); 
 
-            dispatch(getAllCommentsByProjectId({id: id, token: keycloak.token}))
+            dispatch(getAllCommentsByProjectId({id: id, token: keycloak.token}));
         }
-    }, [id, project, dispatch, owner,commentUsers]);
-    
-    if (error) {
-        return <p>Error: {error.message}</p>;
-    }
+    }, [id, project, dispatch, owner,commentUsernames]);
 
-    if (!project) {
-        return <p>Project not found.</p>;
-    }
+
+    useEffect(() => {
+        comments.forEach(comment => {
+            dispatch(getUserById(comment.userId))
+        })
+
+    }, [comments, commentUsernames, dispatch])
+    
+    const getUsernameByUserId = (userId) => {
+        const user = commentUsernames.find(user => user.id === userId);
+        return user ? user.username : "Loading...";
+      }
 
     const onSubmit = (data) => {
         const comment = {
@@ -75,12 +77,6 @@ function ProjectDetail() {
                 projectId: project.id,
                 token: keycloak.token
         }))
-        .then(result => {
-            setCommentUser(prevState => ({
-                ...prevState,
-                [result.payload.id]: user.username
-            }));
-        });
         
         setSendComment(false);
         reset();
@@ -91,8 +87,6 @@ function ProjectDetail() {
             return <p>No comments available.</p>;
         }
 
-        
-
         return (
             <div>
                 <h3>Comments</h3>
@@ -101,7 +95,7 @@ function ProjectDetail() {
                         <li key={comment.id}>
                             {comment.text + " "}
                             {formatDate(comment.date) + " "}
-                            {commentUsers[comment.id] || "Loading..."}
+                            {getUsernameByUserId(comment.userId)}
                         </li>
                     ))}
                 </ul>
@@ -130,13 +124,6 @@ function ProjectDetail() {
         setCollaboratorRequest(false);
     }
 
-    const handleCollaboratorStatus = () => {
-        collaborators.map(collaborator => {
-           
-        })
-
-    }
-
   return (
     <div>
         <p><strong>Owner: </strong>{owner.username}</p>
@@ -145,29 +132,26 @@ function ProjectDetail() {
         <p><strong>Category:</strong> {project.category}</p>
         <p><strong>Status:</strong> {project.status?.split("_").join(" ") || 'N/A'}</p>
 
-        {handleCollaboratorStatus()}
-
         {collaboratorRequest ? (
-                <div>
-                    <h3>Send Request</h3>
-                    <textarea value={motivationText} onChange={(e) => setMotivationText(e.target.value)} placeholder="Write your text..."></textarea>
-                    <button onClick={handleCollaborators}>Send</button>
-                    <button onClick={()=> setCollaboratorRequest(false)}>Close</button>
-                </div>
-            ) :     <button onClick={() => setCollaboratorRequest(true)}>Collaborator Request</button>
+            <div>                    <h3>Send Request</h3>
+                <textarea value={motivationText} onChange={(e) => setMotivationText(e.target.value)} placeholder="Write your text..."></textarea>
+                <button onClick={handleCollaborators}>Send</button>
+                <button onClick={()=> setCollaboratorRequest(false)}>Close</button>
+            </div>
+            ) :   <button onClick={() => setCollaboratorRequest(true)}>Collaborator Request</button>
         }
 
-         { sendComment ? (<form onSubmit={handleSubmit(onSubmit)}>
+        {sendComment ? (<form onSubmit={handleSubmit(onSubmit)}>
             <textarea {...register("comment")}></textarea>
             {errors?.comment?.message && <p style={{color: 'red'}}>{errors.comment.message}</p>}
             <button type='submit'>Send Comment</button>
             <button onClick={() => setSendComment(false)}>Close Comment</button>
 
 
-         </form> ) : <button onClick={() => setSendComment(true)}>Add Comment</button>
-         }
+            </form> ) : <button onClick={() => setSendComment(true)}>Add Comment</button>
+        }
 
-         {handleComments()}
+        {handleComments()}
 
         <button onClick={() => navigate("/")}>Go Back</button>
     </div>
