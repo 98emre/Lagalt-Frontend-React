@@ -135,7 +135,8 @@ const Profile = () => {
 
             return (
                 <div key={collab.id}>
-                    <p>{collabUser.username}</p>
+                    <p>Username: {collabUser.username}</p>
+                    <p>Project: {userProjects.find(project => project.id == collab.projectId).title}</p>
                     <button>Accept</button>
                     <button>Decline</button>
                 </div>
