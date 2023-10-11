@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useForm } from 'react-hook-form';
 import { useKeycloak } from '@react-keycloak/web';
 
-import { getProjectById } from '../../api/projectAPI';
+import { getProjectById,getProjectPendingCollaborator } from '../../api/projectAPI';
 import { getUserById } from '../../api/userAPI';
 import { addComment, getAllCommentsByProjectId } from "../../api/commentAPI";
 import { sendCollaboratorRequest,getCollaborators } from '../../api/collaboratorAPI';
@@ -59,6 +59,7 @@ function ProjectDetail() {
         dispatch(getCollaborators())
 
     }, [dispatch, collaborator,project, id])
+
 
     const getUsernameByUserId = (userId) => {
         const user = commentUsernames.find(user => user.id === userId);

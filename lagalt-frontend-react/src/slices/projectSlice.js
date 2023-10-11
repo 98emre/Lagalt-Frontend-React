@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { fetchProjects, addProject, getProjectById } from '../api/projectAPI'; 
+import { fetchProjects, addProject, getProjectById, getProjectPendingCollaborator, getProjectApprovedCollaborator } from '../api/projectAPI'; 
 
 const initialState = {
     currentUserId: null,
@@ -111,7 +111,7 @@ const projectSlice = createSlice({
             .addCase(getProjectById.rejected, (state, action) => {
                 state.loading = 'error';
                 state.error = action.error.message;
-            });
+            })
         }
 });
 

@@ -38,6 +38,17 @@ export const getCollaborators = createAsyncThunk("collaborator/getCollaborators"
 })
 
 
+export const getCollaboratorById = createAsyncThunk("collaborator/getCollaboratorById", async({id})=> {
+
+    try {
+        const response = await axios.get(`${BASE_URL}/public/${id}`);
+        return response.data;
+
+    } catch (error) {
+        throw error.response ? error.response.data : { message: "An error occurred while get collaborator by id"}
+    }
+})
+
 export const updateCollaboratorRequest = createAsyncThunk("collaborator/updateCollaboratorRequest", async({ id, collaborator, token }) => {
 
     if(!token){

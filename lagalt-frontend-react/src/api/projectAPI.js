@@ -43,3 +43,36 @@ export const getProjectById = createAsyncThunk("project/getProjectById", async({
         throw error.response ? error.response.data : { message: "An error occurred while get project by id"}
     }
 })
+
+export const getProjectPendingCollaborator = createAsyncThunk("project/getProjectPendingCollaborator", async({id, token})=> {
+    if (!token) {
+        throw { message: "Token is not available" };
+    }
+
+    try {
+        const response = await axios.get(`${BASE_URL}/${id}/collaborators/all-pending`,{
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+        });
+        return response.data;
+
+    } catch (error) {
+        throw error.response ? error.response.data : { message: "An error occurred while get Project Pending Collaborator by id"}
+    }
+})
+
+export const getProjectApprovedCollaborator = createAsyncThunk("project/getProjectApprovedCollaborator", async({id, token})=> {
+    if (!token) {
+        throw { message: "Token is not available" };
+    }
+
+    try {
+        const response = await axios.get(`${BASE_URL}/${id}/collaborators/all-approved`);
+        return response.data;
+
+    } catch (error) {
+        throw error.response ? error.response.data : { message: "An error occurred while get Project Approved Collaborator project by id"}
+    }
+})

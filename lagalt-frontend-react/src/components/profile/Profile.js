@@ -1,7 +1,10 @@
 import React, {useState, useEffect, useRef} from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { updateUser } from "../../api/userAPI";
-import { getProjectById } from "../../api/projectAPI";
+import { getUserById, updateUser } from "../../api/userAPI";
+import { getProjectById, fetchProjects, getProjectPendingCollaborator } from "../../api/projectAPI";
+import { getCollaboratorById } from "../../api/collaboratorAPI";
+import { setCurrentUserId } from "../../slices/projectSlice";
+
 import { useKeycloak } from "@react-keycloak/web";
 import AddProject from "../project/AddProject";
 
@@ -15,31 +18,53 @@ const Profile = () => {
     const { keycloak } = useKeycloak()
 
     const user = useSelector((state) => state.user.user);
+    const userProjects = useSelector((state) => state.project.userProjects);
     const loading = useSelector((state) => state.user.loading);
     const error = useSelector((state) => state.user.error);
-
-    const userProjects = useSelector((state) => state.project.userProjects);
+    const collaborator = useSelector((state) => state.collaborator.collaboratorsList);
 
     const { username, email, fullname, description, skills} = user;
 
     const[editDescription, setEditDescription] = useState(description)
+    const[collaboratorUser, setCollaboratorUser] = useState({});
     const[selectedSkills, setSelectedSkills] = useState(new Set(skills))
     const [isEditing, setIsEditing] = useState(false); 
 
     useEffect(() => {
         if (user != null) {
+            dispatch(setCurrentUserId(user.id))
             setEditDescription(description);
             setSelectedSkills(new Set(skills));
         }
+
     }, [description, skills]);
 
     useEffect(() => {
-        if (loading && user.projectIds && user.projectIds.length > 0) {
-            user.projectIds.forEach(element => {
-                dispatch(getProjectById({id: element}))
-            });
-        }
-    }, [loading, user.projectIds, dispatch]);
+        dispatch(setCurrentUserId(user.id))
+
+        user.projectIds.forEach(element => {
+            dispatch(getProjectById({id: element}))
+            .then(result => {
+                result.payload.collaboratorIds.map(id=> {
+                    dispatch(getCollaboratorById({id: id}))
+
+                })
+            })
+        });           
+    }, [user, loading, user.projectIds, dispatch, collaborator]);
+
+    useEffect(() => {
+        collaborator.forEach(collaborator => {
+            if (!collaboratorUser[collaborator.userId]) {
+                dispatch(getUserById(collaborator.userId))
+                    .then(result => setCollaboratorUser(prev => ({
+                        ...prev,
+                        [collaborator.userId]: result.payload
+                    })));
+            }
+        });
+    }, [collaborator, collaboratorUser]);
+    
 
     const handleSkillChange = (skill) => {
         const newSkills = new Set(selectedSkills);
@@ -96,6 +121,30 @@ const Profile = () => {
         
     }
 
+    const handleCollaborator = () => {
+        if (collaborator.length === 0) {
+            return <p>No Collaborator Request.</p>;
+        }
+    
+        return collaborator.map(collab => {
+            const collabUser = collaboratorUser[collab.userId];
+          
+            if(!collabUser){
+                return <div> Loading Collaborator....</div>
+            }
+
+            return (
+                <div key={collab.id}>
+                    <p>{collabUser.username}</p>
+                    <button>Accept</button>
+                    <button>Decline</button>
+                </div>
+            )
+        });
+    }
+    
+    
+
 
     return (
         <div>
@@ -118,6 +167,9 @@ const Profile = () => {
             {!isEditing ? (<button onClick={() => setIsEditing(true)}>Edit</button>) :
                 (<button onClick={handleSave}>Save</button>)
             }
+
+            <h2>Collaborator Request</h2>
+            {handleCollaborator()}
 
             <h2>Your Projects</h2>
             {handleProjects()}
