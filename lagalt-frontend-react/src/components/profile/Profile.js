@@ -1,9 +1,10 @@
 import React, {useState, useEffect, useRef} from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { getUserById, updateUser } from "../../api/userAPI";
-import { getProjectById, fetchProjects, getProjectPendingCollaborator } from "../../api/projectAPI";
-import { getCollaboratorById } from "../../api/collaboratorAPI";
+import { getProjectById  } from "../../api/projectAPI";
+import { getCollaboratorById, updateCollaboratorRequest, deleteCollaboratorRequest } from "../../api/collaboratorAPI";
 import { setCurrentUserId } from "../../slices/projectSlice";
+import { formatDate } from "../../utlilites";
 
 import { useKeycloak } from "@react-keycloak/web";
 import AddProject from "../project/AddProject";
@@ -63,8 +64,7 @@ const Profile = () => {
                     })));
             }
         });
-    }, [collaborator, collaboratorUser]);
-    
+    }, [user,loading,collaborator, collaboratorUser, dispatch]);     
 
     const handleSkillChange = (skill) => {
         const newSkills = new Set(selectedSkills);
@@ -95,6 +95,21 @@ const Profile = () => {
         setIsEditing(false);
     }
 
+    const handleAcceptCollaborator = (collabId) => {
+        const collaborator = {
+            id: collabId,
+            status: "APPROVED"
+        }
+
+        dispatch(updateCollaboratorRequest({
+            id: collabId,
+            collaborator: collaborator,
+            token: keycloak.token
+        }))
+
+        return;
+    }
+
     if (!loading) {
         return <div>Loading...</div>;
     }
@@ -117,30 +132,45 @@ const Profile = () => {
                 <p><strong>Status: </strong> {project.status.split("_").join(" ") || 'N/A'} </p>
             </li>
            </ul>
-        )));
-        
+        )));   
     }
 
     const handleCollaborator = () => {
-        if (collaborator.length === 0) {
+        if (!collaborator || collaborator.length === 0) {
             return <p>No Collaborator Request.</p>;
         }
+
+        const arr = userProjects.map(project=> project.collaboratorIds)
+
+        
     
         return collaborator.map(collab => {
+            
             const collabUser = collaboratorUser[collab.userId];
           
             if(!collabUser){
-                return <div> Loading Collaborator....</div>
+                return <div key={collab.id}> Loading Collaborator....</div>  // Add key here
             }
 
-            return (
-                <div key={collab.id}>
-                    <p>Username: {collabUser.username}</p>
-                    <p>Project: {userProjects.find(project => project.id == collab.projectId).title}</p>
-                    <button>Accept</button>
-                    <button>Decline</button>
-                </div>
-            )
+                
+            const project = userProjects.find(project => project.id === collab.projectId);
+            const projectTitle = project ? project.title : 'Unknown';
+
+            const requestDate = formatDate(collaborator.find(c => c.id === collab.id).requestDate)
+            
+
+            if(collab.status === "PENDING"){    
+                return (
+                    
+                    <div key={collab.id}>
+                        <p><strong>Username: </strong>{collabUser.username}</p>
+                        <p><strong>Project: </strong>{projectTitle}</p>
+                        <p><strong>Request Date: </strong>{requestDate}</p>
+                        <button onClick={() => handleAcceptCollaborator(collab.id)}>Accept</button>
+                        <button onClick={() => dispatch(deleteCollaboratorRequest({id: collab.id, token: keycloak.token}))}>Decline</button>
+                    </div>
+                )
+            }
         });
     }
     

@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { fetchProjects, addProject, getProjectById, getProjectPendingCollaborator, getProjectApprovedCollaborator } from '../api/projectAPI'; 
+import { fetchProjects, addProject, getProjectById} from '../api/projectAPI'; 
 
 const initialState = {
     currentUserId: null,

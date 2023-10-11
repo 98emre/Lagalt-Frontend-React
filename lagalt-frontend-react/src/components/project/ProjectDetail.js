@@ -8,7 +8,7 @@ import { useKeycloak } from '@react-keycloak/web';
 import { getProjectById,getProjectPendingCollaborator } from '../../api/projectAPI';
 import { getUserById } from '../../api/userAPI';
 import { addComment, getAllCommentsByProjectId } from "../../api/commentAPI";
-import { sendCollaboratorRequest,getCollaborators } from '../../api/collaboratorAPI';
+import { sendCollaboratorRequest,getCollaborators, getCollaboratorById } from '../../api/collaboratorAPI';
 
 
 import { formatDate } from '../../utlilites';
@@ -26,7 +26,7 @@ function ProjectDetail() {
     const user = useSelector((state) => state.user.user);
     const project = useSelector((state) => state.project.project);
     const comments = useSelector((state) => state.comment.commentList);
-    const commentUsernames = useSelector((state) => state.comment.commentUsers)
+    const commentUsernames = useSelector((state) => state.comment.commentUsers);
     const collaborator = useSelector((state) => state.collaborator.collaboratorsList);
     
     const[owner, setOwner] = useState({});
@@ -56,10 +56,12 @@ function ProjectDetail() {
     }, [comments, commentUsernames, dispatch])
     
     useEffect(() => {
-        dispatch(getCollaborators())
+        project.collaboratorIds.map(collaboratorId => {
+            dispatch(getCollaboratorById({id: collaboratorId}))
+        })
 
     }, [dispatch, collaborator,project, id])
-
+    console.log(collaborator)
 
     const getUsernameByUserId = (userId) => {
         const user = commentUsernames.find(user => user.id === userId);
