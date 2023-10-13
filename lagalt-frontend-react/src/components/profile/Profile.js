@@ -54,6 +54,8 @@ const Profile = () => {
         });           
     }, [user, loading, user.projectIds, dispatch, collaborator]);
 
+    console.log(collaborator)
+
     useEffect(() => {
         collaborator.forEach(collaborator => {
             if (!collaboratorUser[collaborator.userId]) {
@@ -140,40 +142,40 @@ const Profile = () => {
             return <p>No Collaborator Request.</p>;
         }
 
-        const arr = userProjects.map(project=> project.collaboratorIds)
-
-        
+        console.log(collaboratorUser)
     
-        return collaborator.map(collab => {
-            
-            const collabUser = collaboratorUser[collab.userId];
-          
-            if(!collabUser){
-                return <div key={collab.id}> Loading Collaborator....</div>  // Add key here
-            }
-
-                
-            const project = userProjects.find(project => project.id === collab.projectId);
-            const projectTitle = project ? project.title : 'Unknown';
-
-            const requestDate = formatDate(collaborator.find(c => c.id === collab.id).requestDate)
-            
-
-            if(collab.status === "PENDING"){    
-                return (
-                    
-                    <div key={collab.id}>
-                        <p><strong>Username: </strong>{collabUser.username}</p>
-                        <p><strong>Project: </strong>{projectTitle}</p>
-                        <p><strong>Request Date: </strong>{requestDate}</p>
-                        <button onClick={() => handleAcceptCollaborator(collab.id)}>Accept</button>
-                        <button onClick={() => dispatch(deleteCollaboratorRequest({id: collab.id, token: keycloak.token}))}>Decline</button>
-                    </div>
-                )
-            }
-        });
-    }
+        return collaborator
+            .filter(collab => {
+                // Only consider collaborators for the current user's projects
+                const project = userProjects.find(p => p.id === collab.projectId);
+                return project;
+            })
+            .map(collab => {
+                const collabUser = collaboratorUser[collab.userId]; 
     
+                if (!collabUser) {
+                    return <div key={collab.id}> Loading Collaborator....</div>;
+                }
+    
+                const project = userProjects.find(project => project.id === collab.projectId);
+                const projectTitle = project ? project.title : 'Unknown';
+    
+                const requestDate = formatDate(collaborator.find(c => c.id === collab.id).requestDate);
+    
+                if (collab.status === "PENDING") {    
+                    return (
+                        <div key={collab.id}>
+                            <p><strong>Username: </strong>{collabUser.username}</p>
+                            <p><strong>Project: </strong>{projectTitle}</p>
+                            <p><strong>Request Date: </strong>{requestDate}</p>
+                            <button onClick={() => handleAcceptCollaborator(collab.id)}>Accept</button>
+                            <button onClick={() => dispatch(deleteCollaboratorRequest({id: collab.id, token: keycloak.token}))}>Decline</button>
+                        </div>
+                    );
+                }
+                return null; // Return null for array elements that don't produce a JSX element
+            });
+    };
     
 
 

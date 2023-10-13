@@ -67,7 +67,7 @@ const collaboratorSlice = createSlice({
                 state.loading = "loaded";
                 state.collaborator = action.payload;
 
-                if (!state.collaboratorsList.some(project => project.userId === action.payload.userId)) {
+                if (!state.collaboratorsList.some(project => project.id === action.payload.projectId)) {
                     state.collaboratorsList.push(action.payload);
                 }
             })
